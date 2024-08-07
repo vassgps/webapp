@@ -1,0 +1,68 @@
+
+
+# GitHUb Action settings.
+
+Save this YAML content in .github/workflows/ci-cd.yml in your repository.
+Ensure you have set DOCKER_USERNAME and DOCKER_PASSWORD in the repository 
+secrets (Settings > Secrets and variables > Actions > New repository secret).
+
+DOCKER_USERNAME : vassgps
+DOCKER_PASSWORD : an***V*$9***
+
+
+
+Git Repo: https://github.com/vassgps/webapp/
+Docker : https://hub.docker.com/repository/docker/vassgps/webapp/general
+
+Git Branch : production -> Docker Tag : vassgps/webapp:production
+Git Branch : qa_uat -> Docker Tag : vassgps/webapp:qa_uat
+Git Branch : develop -> Docker Tag : vassgps/webapp:develop
+
+# Create a Docker file and Docker Compose.yml file for manage Images and Containers
+# Create DB Volume for Persist the data in the Docker volume dropped.
+# Add starter script ("entrypoint.sh), db_backup.sql and Docker ignroe files.
+# Build and Push the Image to Docker hub with proper tags after login
+
+# Steps
+docker build -t vassgps/webapp:develop .
+docker login
+docker push vassgps/webapp:develop
+
+# - Running on Another Machine
+docker pull vassgps/webapp:develop
+docker-compose up --build
+
+
+# - Change Docker settings.
+docker-compose down
+docker-compose build
+docker-compose up
+
+# docker-compose build --no-cache
+
+# -- See Docker logs:
+docker-compose logs -f
+
+
+# Backup and Restore Process
+Creating a Backup of the Local Database
+docker-compose exec db pg_dump -U webapp -d webapp_1 > db_backup.sql
+- Restore Data:
+docker-compose exec -T db psql -U webapp -d webapp_1 < backup.sql
+
+# Check if Migrations are Applied:
+docker-compose exec web python manage.py migrate
+
+# - Setup CI/Cd Enviornment on GitHUb
+
+Step 1: Create GitHub Environments
+-Go to your GitHub repository.
+-Click on the Settings tab in the repository.
+-Under the Security section, select Environments, then click on New environment.
+-Name your environment (e.g., develop, qa_uat, production), and click Configure environment.
+
+Step 2: Add Environment Variables
+-Go to the environment you created (e.g., develop).
+-Under the Environment secrets or Environment variables section, click Add variable.
+-Name: Enter the name of your variable (e.g., SECRET_KEY, DB_NAME).
+-Click Add variable to save each one.

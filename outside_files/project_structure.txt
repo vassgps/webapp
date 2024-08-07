@@ -1,0 +1,18 @@
+webapp/
+ ├─ app/
+    ├─ core/
+    ├─ user/
+    ├─ cms/ 
+    Dockerfile
+    entrypoint.sh
+    requirements.txt
+    manage.py
+ ├─ database/
+    ├─ postgres/
+ ├─ nginx/
+    ├─ Dockerfile
+    ├─ nginx.conf
+ .env
+ docker-compose.yml
+ .gitignore
+ .dockerignore

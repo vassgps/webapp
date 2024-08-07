@@ -1,0 +1,58 @@
+services:
+  django:
+    build: ./app
+    container_name: djangoapp
+    volumes:
+      - ./app:/home/app/web
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - nginx_network
+      - database_network
+    depends_on:
+      - database
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    depends_on:
+      - django
+    networks:
+      - nginx_network
+
+  database:
+    image: postgres:16
+    container_name: database
+    volumes:
+      - ./database/postgres:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    networks:
+      - database_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  nginx_network:
+    driver: bridge
+  database_network:
+    driver: bridge
+
+volumes:
+  static_volume:
+  media_volume:
