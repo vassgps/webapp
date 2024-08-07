@@ -39,6 +39,7 @@ RUN pip install -r requirements.txt
 # Copy entrypoint.sh and project files
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
+RUN chmod +x /home/app/web/entrypoint.sh
 COPY . .
 
 # Run entrypoint.sh

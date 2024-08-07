@@ -8,7 +8,7 @@ services:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
     env_file:
-      - ./app/.env 
+      - ./app/.env
     ports:
       - "8000:8000"
     networks:
@@ -20,12 +20,12 @@ services:
   nginx:
     image: nginx:1.25-alpine
     container_name: nginx
-    ports:
-      - 80:80
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
+    ports:
+      - "80:80"
     depends_on:
       - django
     networks:
@@ -33,20 +33,19 @@ services:
 
   database:
     image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     container_name: database
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
     env_file:
-      - ./app/.env 
+      - ./app/.env
     ports:
       - "5432:5432"
     networks:
       - database_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $DB_USER"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
 networks:
   nginx_network:
