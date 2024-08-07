@@ -24,6 +24,9 @@ Git Branch : develop -> Docker Tag : vassgps/webapp:develop
 # Build and Push the Image to Docker hub with proper tags after login
 
 # Steps
+# Push Image to hub
+
+docker-compose push
 docker build -t vassgps/webapp:develop .
 docker login
 docker push vassgps/webapp:develop
@@ -31,7 +34,6 @@ docker push vassgps/webapp:develop
 # - Running on Another Machine
 docker pull vassgps/webapp:develop
 docker-compose up --build
-
 
 # - Change Docker settings.
 docker-compose down
@@ -42,6 +44,9 @@ docker-compose up
 
 # -- See Docker logs:
 docker-compose logs -f
+
+
+
 
 
 # Backup and Restore Process
