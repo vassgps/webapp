@@ -1,18 +1,32 @@
+venv/
 webapp/
+
  ├─ app/
     ├─ core/
     ├─ user/
     ├─ cms/ 
-    Dockerfile
-    entrypoint.sh
-    requirements.txt
-    manage.py
+    |-Dockerfile
+    |-entrypoint.sh
+    |-requirements.txt
+    |-manage.py
+    |-.env
+    |-staticfiles/
+    |-mediafiles/
+
  ├─ database/
     ├─ postgres/
  ├─ nginx/
-    ├─ Dockerfile
+    ├─ about.txt
     ├─ nginx.conf
- .env
- docker-compose.yml
- .gitignore
- .dockerignore
+-docker-compose.yml
+-.gitignore
+-.dockerignore
+-.github/workflows/
+  |_ci_cd_develop.yml
+  |_ci_cd_qa_uat.yml
+  |_ci_cd_production.yml
+|-outside_files/
+   |_project_structure.txt
+   |_env_dev.txt
+   |_db_backup.sql
+ 

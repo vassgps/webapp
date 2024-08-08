@@ -1,6 +1,7 @@
 # Application ignore
 
 database/
+database/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -86,7 +86,7 @@ if USE_DB:
             'NAME': config('DB_NAME'),
             'USER': config('DB_USER'),
             'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST', default='db'),
+            'HOST': config('DB_HOST', default='database'),
             'PORT': config('DB_PORT', default='5432'),
         }
     }
