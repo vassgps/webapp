@@ -11,35 +11,12 @@ services:
     ports:
       - "8000:8000"
     networks:
-      - database_network
-    depends_on:
-      - database
-
-  database:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    container_name: database
-    volumes:
-      - ./database/postgres:/var/lib/postgresql/data
-    env_file:
-      - ./app/.env
-    ports:
-      - "5433:5432"
-    networks:
-      - database_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-networks:
-  database_network:
-    driver: bridge
+      - webapp_network
 
 volumes:
   static_volume:
   media_volume:
+
+networks:
+  webapp_network:
+    driver: bridge

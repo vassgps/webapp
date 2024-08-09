@@ -1,11 +1,12 @@
 #!/bin/sh
 echo "EntryPoint Shell Scripts Started !"
 
-if [ "$SQL_ENGINE" = "django.db.backends.postgresql" ]; then
+if [ "$DB_ENGINE" = "django.db.backends.postgresql" ]; then
     echo "Waiting for postgres..."
 
-    while ! nc -z $SQL_HOST $SQL_PORT; do
-        sleep 0.1
+    until nc -z $DB_HOST $DB_PORT; do
+      echo "Postgres is unavailable - sleeping"
+      sleep 1
     done
 
     echo "PostgreSQL started"
