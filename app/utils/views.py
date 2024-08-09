@@ -11,6 +11,7 @@ def about(request):
         "version": "1.0.0",
         "description": "This is a simple Django project with Postgress, Docker and Nginx",
         "author": "Anand VM",
-        "contact": "info@vasssystems.com"
+        "contact": "info@vasssystems.com",
+        "pipeline_version": "v1.00"
     }
     return JsonResponse(data)
