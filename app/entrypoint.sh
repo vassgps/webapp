@@ -12,6 +12,6 @@ if [ "$SQL_ENGINE" = "django.db.backends.postgresql" ]; then
 fi
 
 python manage.py migrate
-python manage.py collectstatic --no-input --clear
+python manage.py collectstatic --noinput
 
 exec "$@"
