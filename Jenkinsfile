@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'  // Replace with your Jenkins Docker Hub credentials ID
+        DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'  // Your Jenkins Docker Hub credentials ID
         GIT_REPO_URL = 'https://github.com/vassgps/webapp.git'
         DOCKERHUB_REPO = 'vassgps/webapp'
         DOCKERHUB_TAG = 'develop'  // Change to appropriate tag based on branch
-        COMPOSE_FILE = 'docker-compose.yml'
         PROJECT_DIR = 'webapp'  // The directory containing your docker-compose.yml file
         LOG_FILE = 'pipeline_log.txt'
     }
@@ -20,7 +19,7 @@ pipeline {
             }
             post {
                 success {
-                    echo "Checkout completed successfully." 
+                    echo "Checkout completed successfully."
                 }
                 failure {
                     echo "Checkout failed. Please check the repository URL and branch name."
