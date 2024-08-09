@@ -32,7 +32,7 @@ pipeline {
                 script {
                     echo "Building Docker image..."
                     dir(env.PROJECT_DIR) {
-                        sh "docker build -t ${env.DOCKERHUB_REPO}:${env.DOCKERHUB_TAG} -f app/Dockerfile app/ 2>&1 | tee ${env.LOG_FILE}"
+                        sh "docker build -t ${env.DOCKERHUB_REPO}:${env.DOCKERHUB_TAG} -f app/Dockerfile . 2>&1 | tee ${env.LOG_FILE}"
                     }
                     echo "Docker image built successfully."
                 }
@@ -47,6 +47,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Push Docker Image') {
             steps {
