@@ -11,9 +11,24 @@ services:
     ports:
       - "8000:8000"
     networks:
+      - nginx_network
       - database_network
     depends_on:
       - database
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    depends_on:
+      - django
+    networks:
+      - nginx_network
 
   database:
     image: postgres:16
@@ -37,6 +52,8 @@ services:
       retries: 5
 
 networks:
+  nginx_network:
+    driver: bridge
   database_network:
     driver: bridge
 
