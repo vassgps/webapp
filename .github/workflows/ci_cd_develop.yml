@@ -70,7 +70,8 @@ jobs:
             docker run --rm vassgps/webapp:develop /bin/sh -c "chmod +x /home/app/web/entrypoint.sh"
             
             echo "Running new container with the latest image."
-            docker run -d --name djangoapp -p 8000:8000 vassgps/webapp:develop
+            docker run -d --name djangoapp -p 8000:8000 vassgps/webapp:develop /bin/sh -c "chmod +x /home/app/web/entrypoint.sh"
+            docker exec -d djangoapp /bin/sh -c "/home/app/web/entrypoint.sh"
             
             echo "Checking container logs..."
             sleep 5  # Give the container a few seconds to start
