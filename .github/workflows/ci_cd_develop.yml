@@ -59,12 +59,23 @@ jobs:
             echo "Logged in to Docker Hub on AWS server."
             docker pull vassgps/webapp:develop
             echo "Docker image 'vassgps/webapp:develop' pulled successfully."
+
             docker stop djangoapp || true
             echo "Existing container stopped (if it was running)."
+            
             docker rm djangoapp || true
             echo "Existing container removed (if it was present)."
+            
+            echo "Setting correct permissions on entrypoint.sh..."
+            docker run --rm vassgps/webapp:develop /bin/sh -c "chmod +x /home/app/web/entrypoint.sh"
+            
+            echo "Running new container with the latest image."
             docker run -d --name djangoapp -p 8000:8000 vassgps/webapp:develop
-            echo "New container started with the latest image."
+            
+            echo "Checking container logs..."
+            sleep 5  # Give the container a few seconds to start
+            docker logs djangoapp
+            
             docker logout
             echo "Logged out of Docker Hub on AWS server."
           EOF
