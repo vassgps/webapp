@@ -41,19 +41,19 @@ jobs:
 
     steps:
       - name: Install SSH client
-        run: sudo apt-get install -y openssh-client
-
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+        run: sudo apt-get install -y openssh-client sshpass
 
       - name: Connect to AWS server and pull latest Docker image
         env:
           PASSWORD: ${{ secrets.AWS_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         run: |
-          echo "Connecting to AWS server using password..."
-          sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no vass@3.7.222.237 << EOF
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          echo "Connecting to AWS server using SSH key..."
+          ssh -o StrictHostKeyChecking=no -i private_key.pem vass@3.7.222.237 << EOF
             echo "Logged in to AWS server."
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             echo "Logged in to Docker Hub on AWS server."
