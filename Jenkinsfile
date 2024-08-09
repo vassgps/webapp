@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'  // Your Jenkins Docker Hub credentials ID
+        DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'  // Your Jenkins Docker Hub credentials ID
         GIT_REPO_URL = 'https://github.com/vassgps/webapp.git'
         DOCKERHUB_REPO = 'vassgps/webapp'
         DOCKERHUB_TAG = 'develop'  // Change to appropriate tag based on branch
