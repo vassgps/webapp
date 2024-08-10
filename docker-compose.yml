@@ -10,16 +10,8 @@ services:
       - ./app/.env
     ports:
       - "8000:8000"
-    networks:
-      - webapp_network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
+    network_mode: host  # Directly use the host's network
 
 volumes:
   static_volume:
   media_volume:
-
-networks:
-  webapp_network:
-    driver: bridge
