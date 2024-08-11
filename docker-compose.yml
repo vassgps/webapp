@@ -37,7 +37,3 @@ services:
 volumes:
   static_volume:
   media_volume:
-
-networks:
-  webapp_network:
-    driver: bridge

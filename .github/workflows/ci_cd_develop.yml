@@ -18,6 +18,7 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        run: echo "Docker Buildx set up completed."
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -67,8 +68,10 @@ jobs:
             echo "Logged in to Docker Hub on AWS server."
             docker pull vassgps/webapp:develop
             echo "Docker image 'vassgps/webapp:develop' pulled successfully."
+
             docker stop djangoapp || true
             echo "Existing container stopped (if it was running)."
+            
             docker rm djangoapp || true
             echo "Existing container removed (if it was present)."
             docker run -d --name djangoapp \
