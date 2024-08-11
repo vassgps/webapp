@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - develop
+  pull_request:
+    branches:
+      - develop
 
 jobs:
   build-and-push:
@@ -15,6 +18,7 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        run: echo "Docker Buildx set up completed."
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -41,18 +45,23 @@ jobs:
 
     steps:
       - name: Install SSH client
-        run: sudo apt-get install -y openssh-client sshpass
+        run: sudo apt-get install -y openssh-client
 
-      - name: Connect to AWS server and pull latest Docker image
+      - name: Connect to AWS server and deploy Docker container
         env:
-          PASSWORD: ${{ secrets.AWS_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ secrets.DB_PORT }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           echo "Connecting to AWS server using SSH key..."
+          
           ssh -o StrictHostKeyChecking=no -i private_key.pem vass@3.7.222.237 << EOF
             echo "Logged in to AWS server."
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
@@ -65,18 +74,15 @@ jobs:
             
             docker rm djangoapp || true
             echo "Existing container removed (if it was present)."
-            
-            echo "Setting correct permissions on entrypoint.sh..."
-            docker run --rm vassgps/webapp:develop /bin/sh -c "chmod +x /home/app/web/entrypoint.sh"
-            
-            echo "Running new container with the latest image."
-            docker run -d --name djangoapp -p 8000:8000 vassgps/webapp:develop /bin/sh -c "chmod +x /home/app/web/entrypoint.sh"
-            docker exec -d djangoapp /bin/sh -c "/home/app/web/entrypoint.sh"
-            
-            echo "Checking container logs..."
-            sleep 5  # Give the container a few seconds to start
-            docker logs djangoapp
-            
+            docker run -d --name djangoapp \
+              -e DB_HOST=$DB_HOST \
+              -e DB_NAME=$DB_NAME \
+              -e DB_USER=$DB_USER \
+              -e DB_PASSWORD=$DB_PASSWORD \
+              -e DB_PORT=$DB_PORT \
+              -p 8000:8000 \
+              vassgps/webapp:develop
+            echo "New container started with the latest image."
             docker logout
             echo "Logged out of Docker Hub on AWS server."
           EOF
