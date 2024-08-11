@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - develop
+  pull_request:
+    branches:
+      - develop
 
 jobs:
   build-and-push:
@@ -12,22 +15,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        run: echo "Checked out the code."
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        run: echo "Docker Buildx set up completed."
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-        run: echo "Logged in to Docker Hub."
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-        run: echo "QEMU set up completed."
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -35,13 +34,9 @@ jobs:
           context: ./app
           push: true
           tags: vassgps/webapp:develop
-        run: echo "Docker image built and pushed to Docker Hub with tag 'vassgps/webapp:develop'."
 
       - name: Log out of Docker Hub
-        run: |
-          docker logout
-          echo "Logged out of Docker Hub."
-
+        run: docker logout
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,19 +44,24 @@ jobs:
 
     steps:
       - name: Install SSH client
-        run: |
-          sudo apt-get install -y openssh-client
-          echo "SSH client installed."
+        run: sudo apt-get install -y openssh-client
 
-      - name: Connect to AWS server and pull latest Docker image
+      - name: Connect to AWS server and deploy Docker container
         env:
-          PASSWORD: ${{ secrets.AWS_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ secrets.DB_PORT }}
         run: |
-          echo "Connecting to AWS server using password..."
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          echo "Connecting to AWS server using SSH key..."
           
-          sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no vass@3.7.222.237 << EOF
+          ssh -o StrictHostKeyChecking=no -i private_key.pem vass@3.7.222.237 << EOF
             echo "Logged in to AWS server."
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             echo "Logged in to Docker Hub on AWS server."
@@ -71,9 +71,15 @@ jobs:
             echo "Existing container stopped (if it was running)."
             docker rm djangoapp || true
             echo "Existing container removed (if it was present)."
-            docker run -d --name djangoapp -p 8000:8000 vassgps/webapp:develop
+            docker run -d --name djangoapp \
+              -e DB_HOST=$DB_HOST \
+              -e DB_NAME=$DB_NAME \
+              -e DB_USER=$DB_USER \
+              -e DB_PASSWORD=$DB_PASSWORD \
+              -e DB_PORT=$DB_PORT \
+              -p 8000:8000 \
+              vassgps/webapp:develop
             echo "New container started with the latest image."
             docker logout
             echo "Logged out of Docker Hub on AWS server."
           EOF
-

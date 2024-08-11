@@ -14,6 +14,24 @@ services:
       - webapp_network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
+      - APP_ENV=${APP_ENV}
+      - DEBUG=${DEBUG}
+      - SECRET=${SECRET}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - USE_DB=${USE_DB}
+      - USE_S3=${USE_S3}
+      - BASE_URL=${BASE_URL}
+      - APP_URL=${APP_URL}
+      - API_URL=${API_URL}
+      - AWS_IAM_KEY_ID=${AWS_IAM_KEY_ID}
+      - AWS_IAM_ACCESS_KEY=${AWS_IAM_ACCESS_KEY}
+      - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
 
 
 volumes:
