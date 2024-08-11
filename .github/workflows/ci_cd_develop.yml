@@ -18,7 +18,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        run: echo "Docker Buildx set up completed."
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -47,41 +46,26 @@ jobs:
       - name: Install SSH client
         run: sudo apt-get install -y openssh-client
 
-      - name: Connect to AWS server and deploy Docker container
+      - name: Connect to AWS server and pull latest Docker image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_PORT: ${{ secrets.DB_PORT }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           echo "Connecting to AWS server using SSH key..."
-          
           ssh -o StrictHostKeyChecking=no -i private_key.pem vass@3.7.222.237 << EOF
             echo "Logged in to AWS server."
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             echo "Logged in to Docker Hub on AWS server."
             docker pull vassgps/webapp:develop
             echo "Docker image 'vassgps/webapp:develop' pulled successfully."
-
             docker stop djangoapp || true
             echo "Existing container stopped (if it was running)."
-            
             docker rm djangoapp || true
             echo "Existing container removed (if it was present)."
-            docker run -d --name djangoapp \
-              -e DB_HOST=$DB_HOST \
-              -e DB_NAME=$DB_NAME \
-              -e DB_USER=$DB_USER \
-              -e DB_PASSWORD=$DB_PASSWORD \
-              -e DB_PORT=$DB_PORT \
-              -p 8000:8000 \
-              vassgps/webapp:develop
+            docker run -d --name djangoapp -p 8000:8000 vassgps/webapp:develop
             echo "New container started with the latest image."
             docker logout
             echo "Logged out of Docker Hub on AWS server."
