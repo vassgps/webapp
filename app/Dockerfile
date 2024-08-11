@@ -31,8 +31,8 @@ COPY entrypoint.sh .
 RUN chmod -R 755 /home/app/web
 
 # Run migrations and collect static files
-RUN python manage.py migrate && \
-    python manage.py collectstatic --noinput
+RUN python manage.py migrate
+RUN python manage.py collectstatic --noinput
 
 # Start Gunicorn
 CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]

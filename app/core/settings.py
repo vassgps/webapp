@@ -25,6 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "Secr@t-K1y" # os.environ.get("SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
+APP_ENV = config('APP_ENV', default='develop')
+USE_DB = config('USE_DB', default=False, cast=bool)
+USE_S3 = config('USE_S3', default=False, cast=bool)
+USE_EMAIL = config('USE_EMAIL', default=False, cast=bool)
+BASE_URL = config('BASE_URL', default="http://localhost:8000")
+APP_URL = config('APP_URL',  default="https://templesaddress.com")
+API_URL = config('API_URL', default="https://api.templesaddress.com")
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
@@ -76,8 +83,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-USE_DB = config('USE_DB', default=False, cast=bool)
 
 if USE_DB:
     DATABASES = {
@@ -135,10 +140,40 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
-# STATICFILES_DIRS = [BASE_DIR / "static",]
+if USE_S3:
+    # AWS settings
+    AWS_ACCESS_KEY_ID = config('AWS_IAM_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config('AWS_IAM_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
+    # Environment-specific folder prefix
+    ENV_PREFIX = APP_ENV
+
+    # Static files settings for AWS S3
+    AWS_STATIC_LOCATION = f'{ENV_PREFIX}/static'
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    # Public media settings for AWS S3
+    PUBLIC_MEDIA_LOCATION = f'{ENV_PREFIX}/media'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'core.storage_backends.PublicMediaStorage'
+
+    # Private media settings (if applicable)
+    AWS_PRIVATE_MEDIA_LOCATION = f'{ENV_PREFIX}/pvt-media'
+else:
+    # Local storage settings
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+    STATICFILES_DIRS = [BASE_DIR / "static",]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
